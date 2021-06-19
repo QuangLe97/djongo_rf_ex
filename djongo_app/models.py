@@ -1,16 +1,19 @@
 from djongo import models
 
 
-# Create your models here.
 class Article(models.Model):
     # _id = models.BigAutoField()
-    slug = models.TextField(db_index=True, max_length=255, unique=True)
-    title = models.CharField(db_index=True, max_length=255)
-    description = models.TextField()
+    # slug = models.TextField(max_length=255, unique=True)
+    title = models.CharField(max_length=255)
+
+    # description = models.TextField()
     body = models.TextField()
 
     class Meta:
         abstract = True
+
+    def __str__(self):
+        return self.title
 
 
 class MetaData(models.Model):
@@ -33,20 +36,24 @@ class Author(models.Model):
 class ArticleEntry(models.Model):
     blog = models.EmbeddedField(
         model_container=Article,
+        null=True,
+        blank=True,
     )
-    meta_data = models.EmbeddedField(
-        model_container=MetaData,
+    content = models.TextField()
+    authors = models.ArrayReferenceField(
+        to=Author,
+        on_delete=models.CASCADE,
+        related_name='article_entry',
+        null=True
     )
-
-    headline = models.CharField(max_length=255)
-    body_text = models.TextField()
-    authors = models.ManyToManyField(Author)
-    n_comments = models.IntegerField()
 
     def __str__(self):
-        return self.headline
+        return self.content
 
 
 class Tag(models.Model):
     tag = models.CharField(max_length=255)
     slug = models.TextField(db_index=True, unique=True)
+
+# class Company(models.Model):
+#     name = models.CharField(max_length=255)
